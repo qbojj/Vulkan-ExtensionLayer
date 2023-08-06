@@ -28,20 +28,11 @@
 
     static void SetInternalArrayPointers(FullDrawStateData* state, Limits const& limits) {
         // Set array pointers to beginning of their memory
-        char* offset_ptr = (char*)state + sizeof(FullDrawStateData);
-
-        state->color_attachment_formats_ = (VkFormat*)offset_ptr;
-        offset_ptr += sizeof(VkFormat) * limits.max_color_attachments;
-
-        state->color_blend_attachment_states_ = (VkPipelineColorBlendAttachmentState*)offset_ptr;
-        offset_ptr += sizeof(VkPipelineColorBlendAttachmentState) * limits.max_color_attachments;
-
-        state->viewport_swizzles_ = (VkViewportSwizzleNV*)offset_ptr;
-        offset_ptr += sizeof(VkViewportSwizzleNV) * limits.max_viewports;
-
-        state->vertex_input_attribute_descriptions_ = (VkVertexInputAttributeDescription*)offset_ptr;
-        offset_ptr += sizeof(VkVertexInputAttributeDescription) * limits.max_vertex_input_attributes;
-
-        state->vertex_input_binding_descriptions_ = (VkVertexInputBindingDescription*)offset_ptr;
-        offset_ptr += sizeof(VkVertexInputBindingDescription) * limits.max_vertex_input_bindings;
+        AlignedMemory memory;
+        memory.SetMemoryWritePtr((char*)state + sizeof(FullDrawStateData));
+        state->color_attachment_formats_ = memory.GetValuePtrAndAdvance<VkFormat>(limits.max_color_attachments);
+        state->color_blend_attachment_states_ = memory.GetValuePtrAndAdvance<VkPipelineColorBlendAttachmentState>(limits.max_color_attachments);
+        state->viewport_swizzles_ = memory.GetValuePtrAndAdvance<VkViewportSwizzleNV>(limits.max_viewports);
+        state->vertex_input_attribute_descriptions_ = memory.GetValuePtrAndAdvance<VkVertexInputAttributeDescription>(limits.max_vertex_input_attributes);
+        state->vertex_input_binding_descriptions_ = memory.GetValuePtrAndAdvance<VkVertexInputBindingDescription>(limits.max_vertex_input_bindings);
     }
